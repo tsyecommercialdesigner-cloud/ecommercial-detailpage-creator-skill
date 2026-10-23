@@ -1,0 +1,120 @@
+# Agent Skills project template: merge with existing rules and trim unused tools.
+# Track SKILL.md, scripts, references, assets, tests, eval cases, golden files,
+# dependency locks, CI workflows and shared Host/plugin configuration.
+# These rules govern Git tracking, not the contents of a released skill package.
+
+# Secrets and machine-local settings; only the empty secret example is shared.
+.env
+.env.*
+!.env.example
+*.local.json
+*.local.toml
+*.local.yaml
+*.local.yml
+/.git-credentials
+/image-evidence/
+/secrets/
+/credentials/
+.claude/settings.local.json
+.claude/projects/
+.claude/session-env/
+.codex/auth.json
+.codex/sessions/
+.codex/log/
+.codex/logs/
+.agents/.local/
+
+# Python environments, bytecode, package metadata and tool caches.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.uv-cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.pyre/
+.dmypy.json
+.hypothesis/
+.tox/
+.nox/
+
+# Node.js dependencies and tool caches; retain manifests and lockfiles.
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/install-state.gz
+.eslintcache
+.parcel-cache/
+.turbo/
+.vite/
+.vitest/
+*.tsbuildinfo
+
+# Rebuildable root outputs; outputs/ and skill assets remain trackable.
+/dist/
+/build/
+/output/
+
+# Generated coverage and test reports, including nested script subprojects.
+# Configure runners to use these locations; keep fixtures/golden data elsewhere
+# or add a reviewed, narrow exception for a deliberately versioned test asset.
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+coverage.xml
+lcov.info
+.nyc_output/
+junit.xml
+junit-*.xml
+pytest.xml
+test-results/
+test-reports/
+playwright-report/
+blob-report/
+allure-results/
+allure-report/
+benchmark-results/
+.benchmarks/
+.mutmut-cache
+/mutants/
+
+# Generated model-evaluation state and private execution traces.
+# evals/, eval cases, rubrics, snapshots and golden outputs are NOT ignored.
+/.eval-runs/
+/.eval-cache/
+/.eval-workspaces/
+/eval-results/
+/eval-reports/
+/eval-traces/
+
+# Machine-local runtime data, logs and temporary files.
+.cache/
+/.runtime/
+/runtime-data/
+/logs/
+/tmp/
+/temp/
+*.log
+*.tmp
+*.temp
+*.pid
+*.pid.lock
+
+# OS and editor-local state; keep shared editor and Agent settings.
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/shelf/
