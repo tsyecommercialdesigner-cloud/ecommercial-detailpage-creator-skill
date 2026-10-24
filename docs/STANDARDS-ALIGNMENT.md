@@ -1,5 +1,7 @@
 # 新规范适配与验证（2026-10-24）
 
+本页保留规范适配阶段的评测过程；后续卸载并发保留修复将确定性检查增至 58 项，实际 PR／main／dev CI、正式发行及验证见 [交付记录](DELIVERY.md)，成员步骤见 [MANUAL](../MANUAL.md)。
+
 已完整重读新版 AGENTS.md、CONVENTIONS.md、CLAUDE.md、392 行工程指南与 124 行手册指南；保留用户原有规范改动。实现基线为 `262f4772f140a60ef9e61ac6f5bcc7385d1eafbc`，本轮候选在 `codex/standards-alignment`；此处记录交付前候选评测，后续 Git / CI / Release 结果以交付记录为准。文档中的 Git 基线不等于候选文件的版本；候选由四文件清单与评测指纹追溯。
 
 ## 复用价值与最小基线
