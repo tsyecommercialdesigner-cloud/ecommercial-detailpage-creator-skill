@@ -2,6 +2,8 @@
 
 把 `image-evidence` 中的七张 SOP 教程整理为一个可复用的 Agent Skill：先核实本商品事实，再拆解买家顾虑，为每屏设计画面证据、文案和布局，确认方案后出图，检查并归档。
 
+普通成员请从 [正式 v0.1.0 Release](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/releases/tag/v0.1.0) 下载四附件，按 [MANUAL.md](MANUAL.md) 校验、安装和调用；无需克隆源码或准备 Python。实际来源、摘要及审核链见 [交付记录](docs/DELIVERY.md)。
+
 技能入口：[ecommerce-detailpage-creator](.agents/skills/ecommerce-detailpage-creator/SKILL.md)。原图编号与正确流程的对应、整理补充及证据摘要见 [SOP 来源说明](docs/SOP-SOURCES.md)。
 
 ## 文件地图
@@ -40,7 +42,7 @@
 
 正常会得到事实表、顾虑映射及分屏方案。缺参数会列待补问题；缺图片不会冒充商品出图。只做主图、SKU 白底图或单图修复时使用对应能力。确认具体方案并授权生成后，才使用宿主已连接的绘图工具，最后交付真实文件和检查结果。
 
-文件位于 `.agents/skills/` 本身不证明宿主可用。本轮已在 Windows / Codex CLI 0.163.0 验证原生仓库发现和模拟任务；没有由此声明其他宿主兼容。实际调用、四文件清单、版本锁定与已知 GitOps 同步缺口见 [使用与维护](docs/OPERATIONS.md)。未修改用户技能目录或宿主配置，未发布版本。
+文件位于 `.agents/skills/` 本身不证明宿主可用。本轮已在 Windows / Codex CLI 0.163.0 验证原生仓库发现和模拟任务；没有由此声明其他宿主兼容。实际调用、四文件清单、版本锁定与已知 GitOps 同步缺口见 [使用与维护](docs/OPERATIONS.md)。正式 v0.1.0 已发布，来源固定为 `533262ff2955702e1a646ed9d0b9df58dcfd5f1f`；成员真实技能目录、宿主配置及集中同步均未操作。
 
 ## 维护检查
 
