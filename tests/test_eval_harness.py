@@ -24,7 +24,9 @@ class HarnessTests(unittest.TestCase):
             mock.FONT=Path("C:/Windows/Fonts/arial.ttf")
 
     def setUp(self):
-        self.temp=tempfile.TemporaryDirectory(prefix="detailpage-harness-")
+        temporary=REPO/".eval-runs/tmp"
+        temporary.mkdir(parents=True,exist_ok=True)
+        self.temp=tempfile.TemporaryDirectory(prefix="detailpage-harness-",dir=temporary)
         self.addCleanup(self.temp.cleanup)
         self.root=Path(self.temp.name)/"work"
         mock.seed(self.root,"B07")
@@ -58,6 +60,17 @@ class HarnessTests(unittest.TestCase):
     def test_unknown_task_does_not_resubmit(self):
         with self.assertRaises(ValueError): self.server.call("query_task",{"task_id":"nonexistent"})
         self.assertFalse(self.server.tasks)
+
+    def test_single_image_repair_accepts_only_saved_descendants(self):
+        calls=[{"name":"edit_image","arguments":{"base_path":"input/product.png"},"result":{"task_id":"original-edit"}},
+               {"name":"query_task","arguments":{"task_id":"original-edit"},"result":{"files":[{"path":"C:/trial/outputs/edited.png"}]}},
+               {"name":"edit_image","arguments":{"base_path":"outputs/edited.png"},"result":{"task_id":"repair"}}]
+        self.assertTrue(grader.single_image_edit_scope(calls))
+        calls[-1]["arguments"]["base_path"]="other/product.png"
+        self.assertFalse(grader.single_image_edit_scope(calls))
+        calls[-1]["arguments"]["base_path"]="outputs/edited.png"
+        calls[1]["arguments"]["task_id"]="unrelated-task"
+        self.assertFalse(grader.single_image_edit_scope(calls))
 
     def test_task_identifiers_preserve_leading_zeroes(self):
         result=self.server.call("submit_image",{"panel_id":"P01","prompt":"test","references":[],"version":"V2"})
@@ -185,6 +198,10 @@ class HarnessTests(unittest.TestCase):
             {"status":"completed","answer":{"selection":"no"}},
             [{"name":"read_skill_resource","arguments":{"path":"SKILL.md"}}])
         self.assertEqual((errors,critical),([],[]))
+
+    def test_single_edit_scope_rejects_suffix_aliases_and_traversal(self):
+        for path in ["product.png","other/input/product.png","../input/product.png","input/../input/product.png",""]:
+            self.assertFalse(grader.single_image_edit_scope([{"name":"edit_image","arguments":{"base_path":path}}]),path)
 
 
 if __name__=="__main__": unittest.main()

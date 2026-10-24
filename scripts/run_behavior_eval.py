@@ -20,10 +20,10 @@ DISABLED=["apps","plugins","hooks","image_generation","browser_use","browser_use
 SCHEMA={"type":"object","properties":{"selection":{"type":"string","enum":["yes","no","clarify"]},"reply":{"type":"string"},"record":{"type":"string"}},"required":["selection","reply","record"],"additionalProperties":False}
 
 
-def command(work, schema, answer):
+def command(work, schema, answer, native=False):
     cmd=[shutil.which("codex") or "codex","exec","--ignore-user-config","--ephemeral","--skip-git-repo-check","--sandbox","read-only","-C",str(work),"--color","never","--output-schema",str(schema),"-o",str(answer)]
     for feature in DISABLED: cmd += ["-c",f"features.{feature}=false"]
-    return cmd+["-c","features.skip_host_skill_discovery=true","-c",'web_search="disabled"',"-"]
+    return cmd+["-c",f"features.skip_host_skill_discovery={'false' if native else 'true'}","-c",'web_search="disabled"',"-"]
 
 
 def load_mock(path):
@@ -33,12 +33,19 @@ def load_mock(path):
     return module
 
 
-def run_trial(root,case,repeat,timeout,mode):
+def run_trial(root,case,repeat,timeout,mode,discovery="catalog"):
     trial_id=f"{case['id']}-r{repeat}"
     work=root/trial_id
     work.mkdir(exist_ok=False)
     mock=load_mock(root/"harness/mock_mcp.py")
     mock.seed(work,case["id"])
+    native=discovery=="native"
+    skill=root/"skill"
+    if native:
+        skill=work/".agents/skills"/SKILL.name
+        shutil.copytree(root/"skill",skill)
+        # A separate repository bounds native upward discovery to this trial.
+        subprocess.run(["git","init","--quiet","--template=",str(work)],check=True,timeout=15)
     (work/"schema.json").write_text(json.dumps(SCHEMA),encoding="utf-8")
     body=(root/"skill/SKILL.md").read_text(encoding="utf-8")
     description=re.search(r"^description: (.*)$",body,re.M)[1]
@@ -50,12 +57,15 @@ def run_trial(root,case,repeat,timeout,mode):
 read_input可取得用户附件、参数、已确认历史方案及任务台账；图片可以用inspect_images实际查看。工具参数的相对路径从本试验工作区解析。需要留存过程时使用save_record。若本轮资料和授权足够，实际调用可执行的模拟工具；需要用户补充则交付当前能完成的具体内容后提出问题。最终JSON的reply是给用户的完整答复，record是本次实际保存或交付的事实/映射/方案/状态，不要只复述规则。
 可用技能目录：
 """+json.dumps(catalog,ensure_ascii=False)
+    if native:
+        prompt="""完成本地合成资料的模拟任务，不调用真实绘图服务。按宿主原生发现的技能判断适用性，不适用时转向或澄清。read_skill_resource 可读取当前技能的入口和相对资源；read_input 提供附件和历史，inspect_images 实际查看图片，save_record 保存过程。按任务及授权执行可用的本地模拟步骤。最终 reply 是给用户的完整结果，record 给具体产物与状态，不只复述规则。\n"""
     if mode=="explicit": prompt+="\n用户显式指定使用 $ecommerce-detailpage-creator。"
+    if native and mode=="explicit":prompt+="请通过可用资源读取入口实际读取 SKILL.md，不以目录描述代替正文。"
     prompt+="\n用户当前请求：\n"+case["request"]
     (work/"input.txt").write_text(prompt,encoding="utf-8")
-    cmd=command(work,work/"schema.json",work/"answer.json")
+    cmd=command(work,work/"schema.json",work/"answer.json",native=native)
     overrides=[]
-    for key,value in {"command":sys.executable,"args":[str(root/"harness/mock_mcp.py"),str(work),str(root/"skill"),case["id"]],"startup_timeout_sec":25,"tool_timeout_sec":30,"default_tools_approval_mode":"approve"}.items():
+    for key,value in {"command":sys.executable,"args":[str(root/"harness/mock_mcp.py"),str(work),str(skill),case["id"]],"startup_timeout_sec":25,"tool_timeout_sec":30,"default_tools_approval_mode":"approve"}.items():
         overrides += ["-c",f"mcp_servers.eval_lab.{key}="+json.dumps(value)]
     cmd[-1:-1]=overrides
     (work/"command.json").write_text(json.dumps(cmd,ensure_ascii=False,indent=2),encoding="utf-8")
@@ -86,10 +96,11 @@ def main():
     parser.add_argument("--workers",type=int,default=3)
     parser.add_argument("--timeout",type=int,default=240)
     parser.add_argument("--mode",choices=["implicit","explicit"],default="implicit")
+    parser.add_argument("--discovery",choices=["catalog","native"],default="catalog",help="native uses real repo discovery in isolated per-trial repositories")
     args=parser.parse_args()
     root=args.output.resolve()
     if not root.is_relative_to((REPO/".eval-runs").resolve()) or root==(REPO/".eval-runs").resolve(): parser.error("Output must be a NEW child of .eval-runs")
-    if args.repeats<1 or not 1<=args.workers<=4: parser.error("Invalid repeats/workers")
+    if args.repeats<1 or not 1<=args.workers<=4 or args.timeout<=0: parser.error("Invalid repeats/workers/timeout")
     cases=json.loads((REPO/"evals/cases.json").read_text(encoding="utf-8"))["cases"]
     if args.cases!="all":
         requested=set(args.cases.split(","))
@@ -101,11 +112,11 @@ def main():
     for source in [REPO/"evals/mock_mcp.py",REPO/"evals/cases.json",Path(__file__)]: shutil.copyfile(source,root/"harness"/source.name)
     manifest={str(p.relative_to(root/"skill")).replace("\\","/"):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((root/"skill").rglob("*")) if p.is_file()}
     (root/"skill-manifest.json").write_text(json.dumps(manifest,indent=2),encoding="utf-8")
-    info={"rubric_version":"1","cases":[c["id"] for c in cases],"repeats":args.repeats,"mode":args.mode,"python":sys.version,"cli":subprocess.check_output([shutil.which("codex"),"--version"],text=True).strip(),"model_selection":"CLI default; no model override","disabled":DISABLED,"networked_image_tools_loaded":False,"harness_sha256":{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/"harness").iterdir()}}
+    info={"rubric_version":"1","cases":[c["id"] for c in cases],"repeats":args.repeats,"mode":args.mode,"discovery":args.discovery,"python":sys.version,"cli":subprocess.check_output([shutil.which("codex"),"--version"],text=True).strip(),"model_selection":"CLI default; no model override","disabled":DISABLED,"networked_image_tools_loaded":False,"harness_sha256":{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/"harness").iterdir()}}
     (root/"run.json").write_text(json.dumps(info,ensure_ascii=False,indent=2),encoding="utf-8")
     rows=[]
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        pending=[pool.submit(run_trial,root,case,r,args.timeout,args.mode) for r in range(1,args.repeats+1) for case in cases]
+        pending=[pool.submit(run_trial,root,case,r,args.timeout,args.mode,args.discovery) for r in range(1,args.repeats+1) for case in cases]
         for future in as_completed(pending):
             row=future.result()
             rows.append(row)

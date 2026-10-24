@@ -12,7 +12,9 @@ import check
 
 class PackageChecks(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix="detailpage-check-")
+        temporary=check.REPO/".eval-runs/tmp"
+        temporary.mkdir(parents=True,exist_ok=True)
+        self.temp = tempfile.TemporaryDirectory(prefix="detailpage-check-",dir=temporary)
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name) / "中文 space" / "demo-skill"
         self.root.mkdir(parents=True)
@@ -25,6 +27,31 @@ class PackageChecks(unittest.TestCase):
     def test_yaml_plain_and_multiline_strings(self):
         self.entry.write_text("---\nname: demo-skill\ndescription: >-\n  根据产品图\n  设计详情页\n---\n# 正文\n", encoding="utf-8")
         self.assertEqual(check.read_metadata(self.entry)["description"], "根据产品图 设计详情页")
+
+    def test_optional_metadata_and_xml_description(self):
+        initial=self.entry.read_text(encoding="utf-8")
+        self.entry.write_text(initial.replace('---\n# 正文','compatibility: Windows\nmetadata:\n  author: team\nlicense: Private\n---\n# 正文'),encoding="utf-8")
+        self.assertEqual(check.read_metadata(self.entry)["metadata"],{"author":"team"})
+        for replacement in ['description: "<xml>测试</xml>"','compatibility: 12','metadata: {author: 12}']:
+            text=initial.replace('description: "测试详情页"',replacement) if replacement.startswith('description:') else initial.replace('---\n# 正文',replacement+'\n---\n# 正文')
+            self.entry.write_text(text,encoding="utf-8")
+            with self.assertRaises(ValueError):check.read_metadata(self.entry)
+
+    def test_flat_resources_require_direct_index_and_no_chain(self):
+        folder=self.root/"reference";folder.mkdir()
+        (folder/"rules.md").write_text("# Rules",encoding="utf-8")
+        self.assertTrue(check.check_layout(self.root))
+        with self.entry.open("a",encoding="utf-8") as out:out.write("[rules](reference/rules.md)\n")
+        self.assertEqual(check.check_layout(self.root),[])
+        (folder/"rules.md").write_text("[other](other.md)",encoding="utf-8")
+        self.assertTrue(any("chains" in error for error in check.check_layout(self.root)))
+        (folder/"nested").mkdir();(folder/"nested/test.md").write_text("# Test",encoding="utf-8")
+        self.assertTrue(any("nested skill" in error for error in check.check_layout(self.root)))
+
+    def test_body_budget_includes_blank_and_code_lines(self):
+        initial=self.entry.read_text(encoding="utf-8")
+        self.entry.write_text(initial+"\n"*500,encoding="utf-8")
+        self.assertTrue(any("500-line" in error for error in check.check_layout(self.root)))
 
     def test_yaml_rejects_unsafe_tags_and_non_mapping(self):
         for payload in ["!!python/object/apply:os.system ['echo unsafe']", "[name, description]"]:

@@ -39,19 +39,68 @@ def read_metadata(path):
         raise ValueError(f"Invalid YAML: {error}") from error
     if not isinstance(fields, dict):
         raise ValueError("Frontmatter must be a mapping")
-    if set(fields) != {"name", "description"}:
-        raise ValueError("Project frontmatter requires exactly name and description")
+    if not {"name", "description"}.issubset(fields) or set(fields)-{"name", "description", "license", "compatibility", "metadata"}:
+        raise ValueError("Missing required or unsupported project frontmatter fields")
     name, description = fields["name"], fields["description"]
     if (not isinstance(name, str) or len(name) > 64
             or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name)):
         raise ValueError("Invalid skill name")
     if name != path.parent.name:
         raise ValueError("Skill name differs from directory")
-    if not isinstance(description, str) or not 1 <= len(description.strip()) <= 1024:
+    if (not isinstance(description, str) or not description.strip() or not 1 <= len(description) <= 1024
+            or re.search(r"<[^>]+>", description)):
         raise ValueError("Invalid description")
+    if "\t" in parts[0]: raise ValueError("Tabs in YAML frontmatter")
+    if "license" in fields and (not isinstance(fields["license"],str) or not fields["license"].strip()):
+        raise ValueError("Invalid license")
+    if "compatibility" in fields and (not isinstance(fields["compatibility"],str) or not 1<=len(fields["compatibility"])<=500):
+        raise ValueError("Invalid compatibility")
+    if "metadata" in fields and (not isinstance(fields["metadata"],dict) or any(not isinstance(k,str) or not isinstance(v,str) for k,v in fields["metadata"].items())):
+        raise ValueError("Metadata must be a string mapping")
     if not parts[1].strip():
         raise ValueError("Empty instructions")
     return fields
+
+
+def skill_metrics(root):
+    metadata=read_metadata(root/"SKILL.md")
+    body=(root/"SKILL.md").read_text(encoding="utf-8").split("\n---\n",1)[1]
+    return {"name_characters":len(metadata["name"]),"description_characters":len(metadata["description"]),
+            "body_lines":len(body.splitlines()),"body_characters":len(body),
+            "body_utf8_bytes":len(body.encode("utf-8")),"token_estimate":None,
+            "token_note":"No verified tokenizer for the target model; bytes are not tokens"}
+
+
+def local_links(path):
+    content=path.read_text(encoding="utf-8")
+    content=re.sub(r"(?ms)^```[^\n]*\n.*?^```[ \t]*$","",content)
+    return re.findall(r"!?\[[^\]\n]*\]\(([^)\n]+)\)",content)
+
+
+def check_layout(root):
+    """Project single-package profile: flat resources, entrypoint direct reach."""
+    errors=[]
+    required=set()
+    for path in root.rglob("*"):
+        relative=path.relative_to(root)
+        if path.is_symlink() or getattr(path,"is_junction",lambda:False)():
+            errors.append(f"{relative}: linked resources are not portable package files")
+            continue
+        if len(relative.parts)>2:
+            errors.append(f"{relative}: nested skill resource")
+        if relative.parts[0] not in {"reference","scripts","assets","agents","SKILL.md","LICENSE","NOTICE"}:
+            errors.append(f"{relative}: unsupported skill package location")
+        if path.is_file() and relative.parts[0] in {"reference","scripts","assets"}:
+            required.add(relative.as_posix())
+            if not re.fullmatch(r"[a-z0-9][a-z0-9._-]*",path.name):
+                errors.append(f"{relative}: resource filename must be lowercase and meaningful")
+            if path.suffix==".md" and any(not urlsplit(link).scheme and urlsplit(link).path for link in local_links(path)):
+                errors.append(f"{relative}: resource chains must be indexed directly by SKILL.md")
+    indexed={unquote(urlsplit(link).path) for link in local_links(root/"SKILL.md") if not urlsplit(link).scheme}
+    for path in sorted(required-indexed): errors.append(f"{path}: missing direct entrypoint resource link")
+    if skill_metrics(root)["body_lines"]>500:
+        errors.append("SKILL.md: body exceeds project 500-line budget; split or review an explicit exception")
+    return errors
 
 
 def anchors(text):
@@ -63,7 +112,7 @@ def anchors(text):
 
 def check_links(path, boundary):
     errors = []
-    for link in re.findall(r"!?\[[^\]\n]*\]\(([^)\n]+)\)", path.read_text(encoding="utf-8")):
+    for link in local_links(path):
         target = urlsplit(link)
         if target.scheme in {"https", "http", "mailto"}:
             continue
@@ -122,9 +171,11 @@ def check_cases(path):
 def main():
     try:
         metadata = read_metadata(SKILL / "SKILL.md")
-        errors = []
+        errors = check_layout(SKILL)
         files = [*SKILL.rglob("*.md"), *REPO.joinpath("docs").glob("*.md"),
-                 *REPO.joinpath("evals").glob("*.md"), REPO / "README.md"]
+                 *REPO.joinpath("evals").glob("*.md"), REPO / "README.md",
+                 REPO/"AGENTS.md",REPO/"CLAUDE.md",REPO/"CONVENTIONS.md"]
+        if (REPO/"MANUAL.md").exists():files.append(REPO/"MANUAL.md")
         for path in files:
             errors.extend(check_links(path, SKILL if path.is_relative_to(SKILL) else REPO))
         count = check_cases(REPO / "evals/cases.json")
@@ -132,6 +183,7 @@ def main():
             raise ValueError("\n".join(errors))
         print(f"PASS: {metadata['name']}; {len(files)} Markdown files; {count} evaluation definitions")
         print("Scope: structure, local links, evaluation data only; no model or image execution")
+        print(json.dumps(skill_metrics(SKILL),ensure_ascii=False))
         return 0
     except (OSError, ValueError, KeyError, TypeError) as error:
         print(f"FAIL: {error}", file=sys.stderr)

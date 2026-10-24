@@ -1,0 +1,82 @@
+name: release-draft
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New immutable version (vMAJOR.MINOR.PATCH)'
+        required: true
+        type: string
+      source_sha:
+        description: 'Full reviewed main/dev commit SHA'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: release-draft
+  cancel-in-progress: false
+jobs:
+  draft:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-2025
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+      statuses: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_VERSION: ${{ inputs.version }}
+      SOURCE_SHA: ${{ inputs.source_sha }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+        with:
+          version: '0.12.9'
+          enable-cache: false
+      - name: Gate exact reviewed source
+        shell: pwsh
+        run: |
+          if ((git rev-parse HEAD) -ne $env:SOURCE_SHA) { throw 'Dispatch commit differs from checkout' }
+          python scripts/release_gate.py --sha $env:SOURCE_SHA --version $env:RELEASE_VERSION
+          if ($LASTEXITCODE -ne 0) { throw 'Release gate failed' }
+      - run: uv sync --locked --group dev --python 3.12
+      - run: uv run --frozen python scripts/ci_check.py
+      - name: Build and verify clean package
+        shell: pwsh
+        run: |
+          uv run --frozen python scripts/build_release.py --sha $env:SOURCE_SHA --version $env:RELEASE_VERSION --output .eval-runs/release
+          if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
+          $digest=(Get-FileHash .eval-runs/release/manifest.json -Algorithm SHA256).Hash
+          & ./.eval-runs/release/Manage-Skill.ps1 -Action Verify -BundleDir .eval-runs/release -ExpectedManifestSha256 $digest
+          if ($LASTEXITCODE -ne 0) { throw 'Package verification failed' }
+          New-Item -ItemType Directory .eval-runs/release-smoke | Out-Null
+          & ./.eval-runs/release/Manage-Skill.ps1 -Action Install -BundleDir .eval-runs/release -ExpectedManifestSha256 $digest -SkillsDir .eval-runs/release-smoke
+          if ($LASTEXITCODE -ne 0) { throw 'Clean installation failed' }
+          & ./.eval-runs/release/Manage-Skill.ps1 -Action Check -BundleDir .eval-runs/release -ExpectedManifestSha256 $digest -SkillsDir .eval-runs/release-smoke
+          if ($LASTEXITCODE -ne 0) { throw 'Installed check failed' }
+          & ./.eval-runs/release/Manage-Skill.ps1 -Action Uninstall -BundleDir .eval-runs/release -ExpectedManifestSha256 $digest -SkillsDir .eval-runs/release-smoke
+          if ($LASTEXITCODE -ne 0) { throw 'Uninstall failed' }
+      - name: Create new draft prerelease only
+        shell: pwsh
+        run: |
+          python scripts/release_gate.py --sha $env:SOURCE_SHA --version $env:RELEASE_VERSION
+          if ($LASTEXITCODE -ne 0) { throw 'Release refs or checks changed' }
+          gh api -X POST "repos/$env:GITHUB_REPOSITORY/git/refs" -f "ref=refs/tags/$env:RELEASE_VERSION" -f "sha=$env:SOURCE_SHA" | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Atomic tag creation failed; inspect existing tag without overwriting' }
+          $tagSha=gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/$env:RELEASE_VERSION" --jq .object.sha
+          if ($LASTEXITCODE -ne 0 -or $tagSha -ne $env:SOURCE_SHA) { throw 'Tag commit differs' }
+          $assets=@(Get-ChildItem -LiteralPath .eval-runs/release -File | Where-Object { $_.Extension -eq '.zip' -or $_.Name -in @('manifest.json','SHA256SUMS.txt','Manage-Skill.ps1') } | ForEach-Object FullName)
+          if ($assets.Count -ne 4) { throw 'Release asset count differs' }
+          gh release create $env:RELEASE_VERSION --verify-tag --target $env:SOURCE_SHA --draft --prerelease --title $env:RELEASE_VERSION --notes-file .eval-runs/release/release-notes.md @assets
+          if ($LASTEXITCODE -ne 0) { throw 'Draft failed; inspect release list by ID before any retry' }
+      - name: Preserve safe check evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-draft-checks
+          path: .eval-runs/ci/
+          include-hidden-files: true
+          retention-days: 7

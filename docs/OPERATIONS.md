@@ -1,0 +1,53 @@
+# 使用、版本与维护
+
+本项目交付一个纯指令 Skill。源仓库为 [ecommercial-detailpage-creator-skill](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill)，技能根是 `.agents/skills/ecommerce-detailpage-creator/`，不是整个仓库。入口 `SKILL.md`、`reference/` 两份规则和 `assets/design-record-template.md` 构成四文件包；Python、评测源码和私有教程图不是业务运行依赖。
+
+## 已验证的使用范围
+
+2026-10-24 在 Windows / Codex CLI 0.163.0 上验证仓库级原生发现及本地合成资料的策划任务；使用 CLI 默认模型，具体模型及批次见验证记录。真实生图供应商、商业视觉质量、Codex Desktop 原生交互、Claude Code、DSH 均未据此获得兼容认证。
+
+在仓库根启动对应 Codex CLI 会话，可用自然语言请求六屏详情页策划，或显式输入 `$ecommerce-detailpage-creator` 并说明任务。需要严格审计正文读取时，在请求中要求实际读取 `SKILL.md`，对照工具轨迹；不能仅由模型自报或目录存在认定正文已加载。
+
+本次实际调用示例：提供本商品实图和已确认参数，要求“策划六屏，先给事实表、顾虑映射与逐屏方案，不生成”。生成前需核对具体方案、工具能力及已有授权；缺能力时交付提示词和准确状态，不自动安装工具或索取密钥。单图主图换背景不套本技能的整套流程。
+
+原生发现诊断使用 [OpenAI 官方 App Server 接口](https://learn.chatgpt.com/docs/app-server) `skills/list`；显式与隐式调用说明参见 [官方技能文档](https://learn.chatgpt.com/docs/build-skills)。本项目诊断命令如下，输出必须是尚不存在的工作区内目录：
+
+```powershell
+uv run --frozen python scripts/probe_host.py --output .eval-runs/my-native-probe
+```
+
+该脚本只调用已安装 CLI 的元数据发现接口，不登录、不调用模型、不改用户配置；在本次输出目录下临时使用独立 `CODEX_HOME`，结束后清理。stdout 为一个 JSON；脱敏报告和 stderr 保存在输出目录。30 秒发现预算，失败返回 1，参数错误返回 2；失败时先检查诊断、来源路径与版本，不自动提权或安装。发现成功还需分别验证选用、执行、输出。
+
+## 版本与开发隔离
+
+本轮评测的实现基线为 `262f4772f140a60ef9e61ac6f5bcc7385d1eafbc`；不将该旧 SHA 冒充新文件的版本。实际交付提交由 PR、Release manifest 与检查记录确定。仓库 `.agents/skills/` 是开发来源，不能把跟随工作区变动的目录当作锁定的正式安装。
+
+共享改进沿当前仓库分支／PR 回流；沿用既有必需检查和自动评审，无需指定人工评审者，提交、推送、合并、发布和成员环境同步分别遵从当前授权。正式使用必须锁定实际审核提交及包摘要；候选快照只能用于本地验证。未获得新一轮 Git 交付授权时，完成工作区改进和证据后停止，不自动推送。
+
+从候选记录四文件清单，再检查一个**已由用户选择、获准读取**的独立副本：
+
+```powershell
+uv run --frozen python scripts/skill_snapshot.py --record .eval-runs/candidate-manifest.json
+uv run --frozen python scripts/skill_snapshot.py --verify .eval-runs/candidate-manifest.json --target '<完整技能目录>'
+```
+
+`--record` 只允许记录仓库 Skill，输出新清单到 `.eval-runs/`；`--verify` 只读，不安装、覆盖或自动修复目标。JSON stdout 包含来源基线、是否有未提交改动、文件数与比对范围；0 表示字节／布局一致，1 表示漂移或失败，2 表示参数错误。路径只作参数传入，不拼 Shell；相同清单文件不覆盖。结构和摘要一致不代表已通过 CI、宿主业务验收或发布授权。
+
+本项目通过 `release-draft` 手动触发入口锁定完整 main/dev SHA，核对各自 push CI 和自动评审，再组装白名单包并验证安装、核验与卸载，只创建预发布草稿。维护者审阅草稿、下载核对来源和摘要、完成隔离宿主验收后才能显式发布；不自动覆盖已有发行。`delivery/Manage-Skill.ps1` 提供按可信 manifest 摘要校验、安装、漂移检查与卸载；目标目录必须由操作者显式选择，已有同名目录拒绝覆盖。升级／回滚选择空目录并恢复完整已验证旧包后复验。成员正式环境尚未指定或同步，不能将测试安装冒充实际部署。发布准备时须在审核后的完整 SHA 上组装同一白名单包，锁定清单，完成目标宿主验收，再通过获授权的自动化同步并核对生效来源、摘要与行为。发现漂移先报告，不能以本地修订静默更新正式基线，也不能自动覆盖成员定制。失败停止扩散，恢复已验证完整旧包并同步恢复 Git 目标后复验；不能承诺撤销已发生的收费操作。
+
+## 维护命令与失败处理
+
+先准备独立锁定环境：`uv sync --locked --group dev`。日常在仓库根运行 `uv run --frozen python scripts/ci_check.py`，与 CI 共用结构、测试、证据一致性和安全检查。每个子检查最多 120 秒，stdout 仅一个汇总 JSON，子日志和汇总位于已忽略的 `.eval-runs/ci/`；全通过返回 0，任一失败／超时返回 1。安全检查仅向 OSV 发送公共包名／版本；网络失败不当作无漏洞。
+
+开发依赖 PyYAML 6.0.3、Pillow 13.0.0 锁在 `uv.lock`，并未增加 Skill 运行时。真实模型评测另需已登录 CLI 和可用中文字体，会消耗模型额度，但本项目绘图替身不联网、不收费。参数、证据、归档及清理命令见 [评测说明](EVAL-HARNESS.md)。
+
+| 现象 | 核对位置／处理 |
+|---|---|
+| 未发现或同名来源不明 | `probe_host.py` 的路径、scope、名称／描述及解析错误；不删除其他技能 |
+| 误选或缺正文加载证据 | 原始请求、描述、调用策略和实际资源轨迹；不能由“没看到某次读文件”单独认定未发现 |
+| 资源不可达 | 同一版本四文件、大小写、`reference/` 迁移及入口直接引用 |
+| 已有 `references/` 旧副本 | 不原地混合新旧目录；授权升级时保留旧包和业务文件，完整换版并复验，安装器不自动修改成员环境 |
+| 工具不可用、拒绝、任务未知 | 按技能关卡停受影响步骤；不猜标识、不换通道绕过、不重提未知收费任务 |
+| 证据指纹失配 | 先区分业务变更与维护变更，保留旧快照；行为变化重跑受影响固定集后重新审计，不能手改通过数 |
+
+升级、回滚或卸载前核对实际来源与本地定制，操作仅限本技能拥有的副本；保留用户配置、业务素材、旧任务和其他技能。源码恢复不等于宿主已刷新，必须重新核对实际加载及代表性输出。
