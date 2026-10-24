@@ -86,7 +86,11 @@ try {
                     # Re-resolve the exact checked owned package before removal.
                     Assert-NoLink $target
                     if ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($target)) -ne $parent.TrimEnd([IO.Path]::DirectorySeparatorChar)) { throw 'Removal target escaped' }
-                    Remove-Item -LiteralPath $target -Recurse -Force
+                    foreach ($name in $expected) { Remove-Item -LiteralPath (Join-Path $target $name) -Force }
+                    # A concurrent new file must survive. Non-recursive removal
+                    # fails on nonempty directories, reporting partial uninstall.
+                    foreach ($dir in @('assets','reference')) { [IO.Directory]::Delete((Join-Path $target $dir),$false) }
+                    [IO.Directory]::Delete($target,$false)
                 }
             }
         }
