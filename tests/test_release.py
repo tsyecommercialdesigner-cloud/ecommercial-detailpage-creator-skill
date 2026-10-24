@@ -68,6 +68,28 @@ class ReleaseTests(unittest.TestCase):
         bundle=next(self.out.glob("*.zip"));bundle.write_bytes(bundle.read_bytes()+b"changed")
         self.invoke("Install",1);self.assertFalse((self.parent/build_release.NAME).exists())
 
+    def test_concurrent_user_file_survives_partial_uninstall(self):
+        self.invoke("Install")
+        wrapper=self.root/"concurrent-uninstall.ps1"
+        wrapper.write_text('''param($Source,$BundleDir,$Digest,$SkillsDir)
+$global:Injected=$false
+$global:MemberFile=Join-Path $SkillsDir 'ecommerce-detailpage-creator/assets/member-concurrent.txt'
+function Remove-Item {
+    param($LiteralPath,[switch]$Force,[switch]$Recurse)
+    if (!$global:Injected) {
+        [IO.File]::WriteAllText($global:MemberFile,'preserve concurrent user content')
+        $global:Injected=$true
+    }
+    Microsoft.PowerShell.Management\\Remove-Item @PSBoundParameters
+}
+& $Source -Action Uninstall -BundleDir $BundleDir -ExpectedManifestSha256 $Digest -SkillsDir $SkillsDir
+exit $LASTEXITCODE
+''',encoding="utf-8")
+        proc=subprocess.run([shutil.which("pwsh"),"-NoProfile","-File",str(wrapper),"-Source",str(self.out/"Manage-Skill.ps1"),"-BundleDir",str(self.out),"-Digest",self.result["manifest_sha256"],"-SkillsDir",str(self.parent)],capture_output=True,text=True,encoding="utf-8",timeout=20)
+        self.assertEqual(proc.returncode,1,proc.stdout+proc.stderr)
+        self.assertEqual(proc.stdout.strip(),"")
+        self.assertEqual((self.parent/build_release.NAME/"assets/member-concurrent.txt").read_text(),"preserve concurrent user content")
+
     def test_duplicate_and_traversal_zip_entries_rejected_even_with_recomputed_hashes(self):
         bundle=next(self.out.glob("*.zip"));manifest_path=self.out/"manifest.json"
         original=bundle.read_bytes()
