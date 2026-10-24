@@ -111,7 +111,7 @@ def schema(fields, required):
 
 TOOLS = {
     "read_input":("Read synthetic user input, attachments, prior confirmed plan and task ledger.",schema({},[])),
-    "read_skill_resource":("Read a skill-relative resource, e.g. SKILL.md or references/workflow.md.",schema({"path":S},["path"])),
+    "read_skill_resource":("Read a skill-relative resource, e.g. SKILL.md or reference/workflow.md.",schema({"path":S},["path"])),
     "inspect_images":("Actually return local synthetic PNG image blocks for visual inspection, plus dimensions and hashes. Paths must be in the trial workspace.",schema({"paths":A},["paths"])),
     "save_record":("Save a local design/task/inspection record. No network.",schema({"content":S},["content"])),
     "submit_image":("Submit ONE simulated image. Returns a task id; use query_task(save=true) to save its result. No real service or billing. Does not decide authorization for the agent.",schema({"panel_id":P,"prompt":S,"references":A,"version":S},["panel_id","prompt","references","version"])),

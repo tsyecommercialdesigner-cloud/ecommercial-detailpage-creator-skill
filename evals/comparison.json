@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "baseline_git_sha": "262f4772f140a60ef9e61ac6f5bcc7385d1eafbc",
+  "candidate_state": "reviewed standards candidate; actual release source tracked by manifest full SHA",
+  "comparisons": {
+    "behavior": {
+      "baseline_n": 48,
+      "baseline_median_seconds": 50.08,
+      "candidate_n": 48,
+      "candidate_median_seconds": 50.05,
+      "candidate_passed": 48,
+      "input_pairing": "same fixed requests and repeats; explicit baseline uses corrected observable-body-load request"
+    },
+    "native_implicit": {
+      "baseline_n": 3,
+      "baseline_median_seconds": 89.09,
+      "candidate_n": 3,
+      "candidate_median_seconds": 113.84,
+      "candidate_passed": 3,
+      "input_pairing": "same fixed task requests and repeats; final candidate uses frozen native-capable repository runner in isolated per-trial repositories; prompts and concurrency differ from early manual baseline"
+    },
+    "native_negative": {
+      "baseline_n": 3,
+      "baseline_median_seconds": 47.27,
+      "candidate_n": 3,
+      "candidate_median_seconds": 61.9,
+      "candidate_passed": 3,
+      "input_pairing": "same fixed task requests and repeats; final candidate uses frozen native-capable repository runner in isolated per-trial repositories; prompts and concurrency differ from early manual baseline"
+    },
+    "native_explicit": {
+      "baseline_n": 3,
+      "baseline_median_seconds": 95.37,
+      "candidate_n": 3,
+      "candidate_median_seconds": 120.56,
+      "candidate_passed": 3,
+      "input_pairing": "same fixed task requests and repeats; final candidate uses frozen native-capable repository runner in isolated per-trial repositories; prompts and concurrency differ from early manual baseline"
+    }
+  },
+  "limits": [
+    "CLI default gpt-6.1-sol in all final traces",
+    "Native baseline and candidate use Pillow 13.0.0; historical full baseline used 12.0.0",
+    "Concurrency and cache conditions not controlled; timings descriptive only",
+    "No verified per-category token usage; no token/cost reduction claim"
+  ],
+  "diagnostics_preserved": [
+    "native-baseline/explicit: 1 of 3 with observable body-load; 2 insufficient load evidence",
+    "native-candidate/negative/grades: 2 of 3; saved-descendant false positive, fixed without changing requests",
+    "behavior-v1/standards: 47 of 48; B07 completed-generation repair question misclassified; all groups recalibrated",
+    "earlier manually orchestrated native batches retained for diagnosis; final native batches rerun with the frozen repository runner, mode and command provenance checked"
+  ]
+}

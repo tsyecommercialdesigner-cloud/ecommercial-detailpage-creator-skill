@@ -17,6 +17,16 @@ PATTERNS=[rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
           rb"sk-proj-[A-Za-z0-9_-]{40,}"]
 
 
+def intended_files(repo):
+    listed=subprocess.check_output(["git","ls-files","-z","--cached","--others","--exclude-standard"],cwd=repo)
+    deleted=subprocess.check_output(["git","ls-files","-z","--deleted"],cwd=repo)
+    missing=set(deleted.decode("utf-8").split("\0"))
+    # Unstaged renames must work without staging. Skip only known deletions;
+    # if a listed existing file disappears during the scan, fail as before.
+    return sorted(name for name in set(listed.decode("utf-8").split("\0"))-{ "" }
+                  if name not in missing or (repo/name).exists())
+
+
 def secret_findings(path, data):
     name=path.name.lower()
     return (name in {".env","auth.json","credentials.json"}
@@ -41,8 +51,7 @@ def dependency_findings(packages, response):
 
 def main():
     try:
-        listed=subprocess.check_output(["git","ls-files","-z","--cached","--others","--exclude-standard"],cwd=REPO)
-        paths=sorted(set(listed.decode("utf-8").split("\0"))-{ "" })
+        paths=intended_files(REPO)
         findings=[]
         for value in paths:
             path=REPO/value
