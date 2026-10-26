@@ -1,3 +1,5 @@
+> 当前正式版为 [v0.1.1](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/releases/tag/v0.1.1)，新版记录见本文末尾。下面的 v0.1.0 修复历史按原文保留。
+
 # v0.1.0 交付记录（2026-10-24）
 
 正式发行：[v0.1.0](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/releases/tag/v0.1.0)，Release ID `422621877`，2026-10-24 09:00:18 UTC 发布，`draft=false`、`prerelease=false`。标签和 manifest 的完整来源 SHA 均为 `533262ff2955702e1a646ed9d0b9df58dcfd5f1f`。成员步骤和四附件可信摘要见 [MANUAL](../MANUAL.md)。
@@ -33,3 +35,14 @@ main 强制实际 `repository-checks` 和 `automated-review`，严格基线、�
 运行包只有 SKILL.md、两份 reference 与一个设计记录 asset。没有 Python 依赖、凭据、真实商品图、原教程七图、模型原始会话或无关源码。发布不代表已同步任何成员正式环境；指定目标前不覆盖本机用户级配置或副本。
 
 公共评测结论在 `evals/evidence.json`，原 schema 1 基线保留；原始评测归档 SHA 见 [规范适配记录](STANDARDS-ALIGNMENT.md)。本轮最终私有证据位于 `.eval-runs/` 的单独归档，CI artifacts 仅确定性日志，保留 7 天；原始轨迹不公开提交。发行后追加文档的 PR 与 CI 单独记录，Git 当前 main/dev 可前进，v0.1.0 标签及资产保持不变。
+
+
+## v0.1.1 目录迁移发行（2026-10-26）
+
+Release ID `423757350`，2026-10-26T00:46:10Z 正式发布，draft=false、prerelease=false；固定源为 `d2d84ba0c85d21967306ee5ae8ada4475fdaf489`。[PR #5](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/pull/5) 从 dev 合入，HEAD `ba34c244420a89db1781d94cc3d61e7ebc818572`。其 [PR CI](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/actions/runs/40250299854)、[main 合入 CI](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/actions/runs/40250412612)、[dev 快进 CI](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/actions/runs/40250507996) 及 [受控草稿 CD](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/actions/runs/40250656288) 均通过 62 项检查，Agent 评审无未解决项。
+
+本次仅改 reference/ → references/、设计记录 assets/ → templates/；三个资源内容是 100% Git 重命名，入口只替换资源链接。业务元数据／规则、量规、用例、执行器／判分器、依赖与 v0.1.0 完整评测、修复／失败记录均保留。新增路径等价门禁与独立原生目录补测 S01/B11/B12 各 3/3，关键违规 0；未冒称重跑旧完整 48 条，没有真实收费出图。
+
+四个真实 CD 附件经重新下载，逐项核对 GitHub digest、SHA256SUMS、manifest 与 Git 原始文件；解压内容还与实际评测的 UTF-8 LF 输入指纹一致。实际 CD 包的 Verify／Install／Check／原生 Host 发现／Uninstall 和回滚旧包核验均通过，旧 Release 和资产未改写。当前默认步骤及可信摘要见 [MANUAL](../MANUAL.md)，旧版仍按其固定原工具和清单操作。发布后手册通过独立 dev 文档 PR 回流，文档提交可更新，发行标签不移动。
+
+保留额外核验差异：本地 Python 3.14.7 候选 ZIP 为 14847 字节，CI Python 3.12.14 的实际 CD ZIP 为 14369 字节，压缩字节不相等；四个解压文件逐字节相同。没有把跨运行时 ZIP 相等计为通过，也不猜测压缩差异根因；正式安装及摘要依据实际 CD 附件，不能把本地候选散列当发行摘要。原失败与差异记录随本轮必要证据归档。

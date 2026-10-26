@@ -1,6 +1,6 @@
 # 电商详情页 Skill 使用手册
 
-本手册对应正式发行 **v0.1.0**，来源提交为 `533262ff2955702e1a646ed9d0b9df58dcfd5f1f`。从 [GitHub Release](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/releases/tag/v0.1.0) 获取完整交付。手册在发行后追加，文档提交会比发行提交新；不会因此改写该标签或附件。
+本手册对应正式发行 **v0.1.1**，来源提交为 `d2d84ba0c85d21967306ee5ae8ada4475fdaf489`。从 [GitHub Release](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/releases/tag/v0.1.1) 获取完整交付。手册在发行后追加，文档提交会比发行提交新；不会因此改写该标签或附件。
 
 | 角色 | 需要做什么 |
 |---|---|
@@ -10,13 +10,17 @@
 
 已验证组合：Windows、Codex CLI **0.163.0**、本地 PowerShell **7.6.5**，模型评测使用 CLI 默认 `gpt-6.1-sol` 和本地绘图替身。以下命令使用 PowerShell 7.4 或更新版本；其他版本的具体组合未逐一认证。Claude Code、DSH、Codex Desktop 原生交互、真实绘图供应商、商业视觉质量及成员生产环境尚未验收。
 
+旧发行 [v0.1.0](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/releases/tag/v0.1.0) 及其[固定旧版手册](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/blob/f024fd901739067e67f10f344f7512abd91ecf4d/MANUAL.md) 保留。旧版使用 reference/ 与 assets/，本版改为 references/ 与 templates/，业务规则和模板内容不变。
+
+已有旧版目录时先核验和备份，再用**旧版自己的工具与可信清单**卸载，不能让新版工具直接覆盖或重命名旧副本。新旧下载目录分开放，每次切换版本重开 PowerShell 并完整执行对应 VERIFY，不沿用上一版本的 `$Verified`。有本地定制或额外文件时停止自动卸载，保留并交维护者迁移。
+
 ## 1. 普通成员：下载正式交付
 
 在 Release 页的 **Assets** 下载下列四个附件，放进同一个独立目录。`Source code (zip/tar.gz)` 是开发源码，普通成员使用表中专用 ZIP。
 
 | 附件 | 用途 |
 |---|---|
-| `ecommerce-detailpage-creator-v0.1.0.zip` | 一个完整的四文件 Skill |
+| `ecommerce-detailpage-creator-v0.1.1.zip` | 一个完整的四文件 Skill |
 | `manifest.json` | 版本、完整提交、ZIP 摘要和四文件清单 |
 | `SHA256SUMS.txt` | ZIP、manifest、安装工具的摘要清单 |
 | `Manage-Skill.ps1` | 本地校验、拒绝覆盖安装、漂移检查、受限卸载 |
@@ -26,11 +30,11 @@
 ```powershell
 $ErrorActionPreference = 'Stop'
 $Verified = $null
-$DeliveryDir = Join-Path $env:USERPROFILE 'Downloads/detailpage-v0.1.0'
+$DeliveryDir = Join-Path $env:USERPROFILE 'Downloads/detailpage-v0.1.1'
 if (Test-Path -LiteralPath $DeliveryDir) { throw '下载目录已存在；保留现有文件，选择新的空目录或直接校验完整下载。' }
 New-Item -ItemType Directory -Path $DeliveryDir -ErrorAction Stop | Out-Null
-$ReleaseBase = 'https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/releases/download/v0.1.0'
-foreach ($name in @('ecommerce-detailpage-creator-v0.1.0.zip', 'manifest.json', 'SHA256SUMS.txt', 'Manage-Skill.ps1')) {
+$ReleaseBase = 'https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/releases/download/v0.1.1'
+foreach ($name in @('ecommerce-detailpage-creator-v0.1.1.zip', 'manifest.json', 'SHA256SUMS.txt', 'Manage-Skill.ps1')) {
     Invoke-WebRequest -Uri "$ReleaseBase/$name" -OutFile (Join-Path $DeliveryDir $name) -ErrorAction Stop
 }
 Write-Host '四个附件已下载；尚未完成可信摘要校验。'
@@ -39,8 +43,8 @@ Write-Host '四个附件已下载；尚未完成可信摘要校验。'
 交付目录示例：
 
 ```text
-Downloads/detailpage-v0.1.0/
-├── ecommerce-detailpage-creator-v0.1.0.zip
+Downloads/detailpage-v0.1.1/
+├── ecommerce-detailpage-creator-v0.1.1.zip
 ├── manifest.json
 ├── SHA256SUMS.txt
 └── Manage-Skill.ps1
@@ -52,10 +56,10 @@ Downloads/detailpage-v0.1.0/
 
 | 文件 | SHA256（64 位十六进制） |
 |---|---|
-| ZIP | `13efc8fbc122c9bef1a7e9a98b417655ac5f8765940af7e3796c92ba6e077f9d` |
-| manifest.json | `8c6a4a530514131f760bedb560e9b3982fe0ebb00c85fe55db420644c116d93f` |
-| Manage-Skill.ps1 | `26837f75b012f524222764ad22ed47428187dd9ce676806f94b41c63dc455dd9` |
-| SHA256SUMS.txt | `a8baf0fbae681d5c7b91fcdb38fa2e3365662e0875e593da908b8541bec73073` |
+| ZIP | `fef9bc28046d14817edc495b0f635080068a7070172116b838c179d725afe41a` |
+| manifest.json | `1251a192c4c1ae9238db4906e81d220628eaf0d071ec1bc5af990d96ead38859` |
+| Manage-Skill.ps1 | `5b8744aa7029f2ff6f83dd0a7e77ae979cc07b0ad79dc4e97bd01dfc00e60bb2` |
+| SHA256SUMS.txt | `0678183dc9df134044c8ce5308867696a4cf96d35a3b9f9612088297423ca6ea` |
 
 **VERIFY 整块执行**。它先清除旧的成功状态，校验四附件后才运行安装工具的只读 Verify。任一失败都不会留下可供后续安装使用的成功状态。新开 PowerShell 窗口后须重做本块。
 
@@ -64,12 +68,12 @@ $ErrorActionPreference = 'Stop'
 $Verified = $null
 try {
     if ($PSVersionTable.PSVersion -lt [version]'7.4') { throw '请使用 PowerShell 7.4 或更新版本。' }
-    $DeliveryDir = Join-Path $env:USERPROFILE 'Downloads/detailpage-v0.1.0'
+    $DeliveryDir = Join-Path $env:USERPROFILE 'Downloads/detailpage-v0.1.1'
     $Expected = @{
-        'ecommerce-detailpage-creator-v0.1.0.zip' = '13efc8fbc122c9bef1a7e9a98b417655ac5f8765940af7e3796c92ba6e077f9d'
-        'manifest.json' = '8c6a4a530514131f760bedb560e9b3982fe0ebb00c85fe55db420644c116d93f'
-        'Manage-Skill.ps1' = '26837f75b012f524222764ad22ed47428187dd9ce676806f94b41c63dc455dd9'
-        'SHA256SUMS.txt' = 'a8baf0fbae681d5c7b91fcdb38fa2e3365662e0875e593da908b8541bec73073'
+        'ecommerce-detailpage-creator-v0.1.1.zip' = 'fef9bc28046d14817edc495b0f635080068a7070172116b838c179d725afe41a'
+        'manifest.json' = '1251a192c4c1ae9238db4906e81d220628eaf0d071ec1bc5af990d96ead38859'
+        'Manage-Skill.ps1' = '5b8744aa7029f2ff6f83dd0a7e77ae979cc07b0ad79dc4e97bd01dfc00e60bb2'
+        'SHA256SUMS.txt' = '0678183dc9df134044c8ce5308867696a4cf96d35a3b9f9612088297423ca6ea'
     }
     foreach ($name in $Expected.Keys) {
         $path = Join-Path $DeliveryDir $name
@@ -78,7 +82,7 @@ try {
     }
     $result = & (Join-Path $DeliveryDir 'Manage-Skill.ps1') -Action Verify -BundleDir $DeliveryDir -ExpectedManifestSha256 $Expected['manifest.json'] | ConvertFrom-Json
     if ($LASTEXITCODE -ne 0 -or !$result.passed) { throw '包结构或内容核验失败。' }
-    $Verified = [pscustomobject]@{ Dir=$DeliveryDir; ManifestSha=$Expected['manifest.json']; ScriptSha=$Expected['Manage-Skill.ps1']; Version='v0.1.0'; Commit='533262ff2955702e1a646ed9d0b9df58dcfd5f1f' }
+    $Verified = [pscustomobject]@{ Dir=$DeliveryDir; ManifestSha=$Expected['manifest.json']; ScriptSha=$Expected['Manage-Skill.ps1']; Version='v0.1.1'; Commit='d2d84ba0c85d21967306ee5ae8ada4475fdaf489' }
     Write-Host '四附件及 Skill 包校验通过；尚未安装。'
 } catch {
     $Verified = $null
@@ -117,10 +121,10 @@ try {
 <你选择的业务目录>/.agents/skills/
 └── ecommerce-detailpage-creator/
     ├── SKILL.md
-    ├── reference/
+    ├── references/
     │   ├── workflow.md
     │   └── deliverables.md
-    └── assets/
+    └── templates/
         └── design-record-template.md
 ```
 
@@ -154,9 +158,9 @@ Skill 是指令方法，不自带绘图服务。策划和提示词无需密钥�
 
 ```text
 Skill：ecommerce-detailpage-creator
-发行：v0.1.0
-来源提交：533262ff2955702e1a646ed9d0b9df58dcfd5f1f
-manifest SHA256：8c6a4a530514131f760bedb560e9b3982fe0ebb00c85fe55db420644c116d93f
+发行：v0.1.1
+来源提交：d2d84ba0c85d21967306ee5ae8ada4475fdaf489
+manifest SHA256：1251a192c4c1ae9238db4906e81d220628eaf0d071ec1bc5af990d96ead38859
 安装根：填写本次实际业务目录下 .agents/skills/ecommerce-detailpage-creator 的完整路径
 Host／版本／会话：填写自己实际使用的版本和会话类型
 文件核验：填写 Check 日期与结果
@@ -164,7 +168,7 @@ Host／版本／会话：填写自己实际使用的版本和会话类型
 绘图：本次是否调用；未调用时写“未调用”，不写“生图成功”
 ```
 
-**商品摘要**用于告诉 Agent 本次要做什么，不用一开始就写满整套方案。按包内 `assets/design-record-template.md` 的真实字段补充；文件化方案沿用其中 S／F／Q／P 编号和版本。普通咨询无需先填整份模板。
+**商品摘要**用于告诉 Agent 本次要做什么，不用一开始就写满整套方案。按包内 `templates/design-record-template.md` 的真实字段补充；文件化方案沿用其中 S／F／Q／P 编号和版本。普通咨询无需先填整份模板。
 
 | 字段 | 怎样填写 |
 |---|---|
@@ -207,7 +211,7 @@ $TargetSkillsDir = Join-Path $SkillProjectDir '.agents/skills'
 if ($LASTEXITCODE -ne 0) { throw '发现漂移或失败；副本未被 Check 修改。' }
 ```
 
-目前正式版本为 v0.1.0。未来升级必须使用对应新 Release 的完整四附件和新可信摘要，不能跟随 main 自动覆盖。先记录现用版本、停止使用／编辑该副本，检查定制并备份完整旧包到技能扫描目录之外；检查点未通过时保留原副本并停下。没有可信旧清单的历史手工副本不要套用新清单强制卸载，应先交维护者核对迁移。
+目前正式版本为 v0.1.1。未来升级必须使用对应新 Release 的完整四附件和新可信摘要，不能跟随 main 自动覆盖。先记录现用版本、停止使用／编辑该副本，检查定制并备份完整旧包到技能扫描目录之外；检查点未通过时保留原副本并停下。没有可信旧清单的历史手工副本不要套用新清单强制卸载，应先交维护者核对迁移。
 
 无定制且旧包核验通过时，可用**旧版本**匹配的工具和 manifest 卸载，再安装新版本并重新发现／验收。需要回滚时，保留新版本失败证据，恢复完整已验证旧包及其匹配记录，再核对 Host 来源和代表性任务；不能只退一个 SKILL.md。存在定制／额外文件时自动卸载拒绝执行，先保存并交维护者安排迁移。生产跨版本升级尚未实测，隔离检查覆盖的是安装、同包恢复、漂移和保留行为。
 
@@ -250,7 +254,7 @@ uv run --frozen python scripts/ci_check.py
 if ($LASTEXITCODE -ne 0) { throw '本地检查失败。' }
 ```
 
-开发工具 uv 0.12.9，Python 3.12 或更新；开发依赖 PyYAML 6.0.3、Pillow 13.0.0 由 `uv.lock` 固定，不是业务运行依赖。共用检查覆盖结构／文档、58 项测试、证据一致性、常见秘密和公共锁定包 OSV 风险；OSV 只接收公共包名版本，网络异常阻断，不能记成零漏洞。每子检查最多 120 秒；JSON 汇总和日志在 `.eval-runs/ci/`，成功 0、失败 1。
+开发工具 uv 0.12.9，Python 3.12 或更新；开发依赖 PyYAML 6.0.3、Pillow 13.0.0 由 `uv.lock` 固定，不是业务运行依赖。共用检查覆盖结构／文档、62 项测试、证据一致性、常见秘密和公共锁定包 OSV 风险；OSV 只接收公共包名版本，网络异常阻断，不能记成零漏洞。每子检查最多 120 秒；JSON 汇总和日志在 `.eval-runs/ci/`，成功 0、失败 1。
 
 真实 CLI 的发现诊断、模型评测、判分与归档命令见 [EVAL-HARNESS](docs/EVAL-HARNESS.md)及 [OPERATIONS](docs/OPERATIONS.md)。模型评测需要已授权的 CLI 认证和额度，会消耗模型用量；绘图替身无网络、无收费图像调用。保持固定场景和重复次数，正文变化按影响重跑，不能只挑一次成功；公共证据门禁不是模型重放。
 
@@ -260,6 +264,6 @@ if ($LASTEXITCODE -ne 0) { throw '本地检查失败。' }
 
 维护者获授权后，选取未使用的新版本和完整审核 SHA，在 main 上手动触发 `release.yml`。入口核对 main/dev 精确提交、各自最新成功 push CI 和自动评审，拒绝已有标签／Release；从 Git 对象构建白名单包、验证安装／核验／卸载，并原子创建固定 SHA 标签，只生成预发布草稿。自审及资产／安装／Host 验证通过后，再显式转为正式 Release。失败先查固定 Release ID、标签和状态，不重复上传或改写已发布附件。
 
-本次发行证据见 [交付记录](docs/DELIVERY.md)和 [规范适配评测](docs/STANDARDS-ALIGNMENT.md)。发布后文档通过后续 PR 补充，发行标签仍固定 `533262ff2955702e1a646ed9d0b9df58dcfd5f1f`。本项目没有 tag push CI；不要把 main CI 或草稿 CD 称为标签 CI。成员正式环境未被集中同步，发布不代表所有人已安装。
+本次发行证据见 [交付记录](docs/DELIVERY.md)和 [规范适配评测](docs/STANDARDS-ALIGNMENT.md)。发布后文档通过后续 PR 补充，发行标签仍固定 `d2d84ba0c85d21967306ee5ae8ada4475fdaf489`。本项目没有 tag push CI；不要把 main CI 或草稿 CD 称为标签 CI。成员正式环境未被集中同步，发布不代表所有人已安装。
 
 反馈请关联发行版本、完整 SHA、Host／模型／OS、脱敏请求、输入来源、实际结果与错误，说明是否发生外发或收费及现有任务 ID。私有商品资料、原始会话和秘密不直接放进公开 issue。可共享改进经分支／PR 回流，成员不长期维护无版本的独立副本。

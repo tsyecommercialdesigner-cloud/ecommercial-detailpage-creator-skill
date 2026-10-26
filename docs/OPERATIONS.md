@@ -1,6 +1,6 @@
 # 使用、版本与维护
 
-普通成员的正式 v0.1.0 下载、可信摘要、安装和调用见 [MANUAL](../MANUAL.md)；本页面向维护与诊断。当前发行来源固定为 `533262ff2955702e1a646ed9d0b9df58dcfd5f1f`，审核与发行证据见 [交付记录](DELIVERY.md)。
+普通成员的正式 v0.1.1 下载、可信摘要、安装和调用见 [MANUAL](../MANUAL.md)；本页面向维护与诊断。当前发行来源固定为 `d2d84ba0c85d21967306ee5ae8ada4475fdaf489`，审核与发行证据见 [交付记录](DELIVERY.md)。
 
 本项目交付一个纯指令 Skill。源仓库为 [ecommercial-detailpage-creator-skill](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill)，技能根是 `.agents/skills/ecommerce-detailpage-creator/`，不是整个仓库。入口 `SKILL.md`、`references/` 两份规则和 `templates/design-record-template.md` 构成四文件包；Python、评测源码和私有教程图不是业务运行依赖。
 
