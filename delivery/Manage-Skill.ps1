@@ -31,7 +31,7 @@ function Assert-Installed([string]$Target,$Manifest) {
     }
     # Empty custom directories are user content too.
     $dirs=@($actual | Where-Object PSIsContainer | ForEach-Object { [IO.Path]::GetRelativePath($Target,$_.FullName).Replace('\','/') } | Sort-Object)
-    if (($dirs -join '|') -ne 'assets|reference') { throw 'Extra or missing installed directories; no changes made' }
+    if (($dirs -join '|') -ne 'references|templates') { throw 'Extra or missing installed directories; no changes made' }
 }
 $ownedTarget=$null
 try {
@@ -40,7 +40,7 @@ try {
     $manifestPath=Join-Path $bundle 'manifest.json'
     if ((Get-Digest $manifestPath) -ne $ExpectedManifestSha256.ToLowerInvariant()) { throw 'Manifest checksum differs' }
     $manifest=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json -AsHashtable
-    $expected=@('SKILL.md','assets/design-record-template.md','reference/deliverables.md','reference/workflow.md')
+    $expected=@('SKILL.md','references/deliverables.md','references/workflow.md','templates/design-record-template.md')
     if ($manifest.schema -ne 1 -or $manifest.name -ne 'ecommerce-detailpage-creator' -or $manifest.source_commit -cnotmatch '^[0-9a-f]{40}$' -or $manifest.version -cnotmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') { throw 'Unsupported manifest' }
     if ($manifest.files.Count -ne 4 -or @(Compare-Object -CaseSensitive @($manifest.files.Keys) $expected).Count) { throw 'Manifest inventory differs' }
     if ($manifest.zip -cne "$($manifest.name)-$($manifest.version).zip") { throw 'Unexpected ZIP name' }
@@ -89,7 +89,7 @@ try {
                     foreach ($name in $expected) { Remove-Item -LiteralPath (Join-Path $target $name) -Force }
                     # A concurrent new file must survive. Non-recursive removal
                     # fails on nonempty directories, reporting partial uninstall.
-                    foreach ($dir in @('assets','reference')) { [IO.Directory]::Delete((Join-Path $target $dir),$false) }
+                    foreach ($dir in @('references','templates')) { [IO.Directory]::Delete((Join-Path $target $dir),$false) }
                     [IO.Directory]::Delete($target,$false)
                 }
             }

@@ -38,10 +38,10 @@ class PackageChecks(unittest.TestCase):
             with self.assertRaises(ValueError):check.read_metadata(self.entry)
 
     def test_flat_resources_require_direct_index_and_no_chain(self):
-        folder=self.root/"reference";folder.mkdir()
+        folder=self.root/"references";folder.mkdir()
         (folder/"rules.md").write_text("# Rules",encoding="utf-8")
         self.assertTrue(check.check_layout(self.root))
-        with self.entry.open("a",encoding="utf-8") as out:out.write("[rules](reference/rules.md)\n")
+        with self.entry.open("a",encoding="utf-8") as out:out.write("[rules](references/rules.md)\n")
         self.assertEqual(check.check_layout(self.root),[])
         (folder/"rules.md").write_text("[other](other.md)",encoding="utf-8")
         self.assertTrue(any("chains" in error for error in check.check_layout(self.root)))

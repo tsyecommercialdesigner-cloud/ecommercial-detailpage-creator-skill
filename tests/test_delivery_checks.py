@@ -90,7 +90,7 @@ class DeliveryChecks(unittest.TestCase):
         subprocess.run(["git","init","--quiet","--template=",str(repo)],check=True,timeout=10)
         (repo/".gitignore").write_bytes((REPO/".gitignore").read_bytes())
         ignored=[".env",".venv/data.txt",".eval-runs/raw.txt","image-evidence/private.png","sub/coverage/data.txt"]
-        tracked=["evals/cases.json","tests/test_demo.py","uv.lock",".github/workflows/checks.yml",".agents/skills/demo/reference/workflow.md"]
+        tracked=["evals/cases.json","tests/test_demo.py","uv.lock",".github/workflows/checks.yml",".agents/skills/demo/references/workflow.md"]
         for name in ignored+tracked:
             path=repo/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text("synthetic",encoding="utf-8")
             result=subprocess.run(["git","-C",str(repo),"check-ignore","--no-index","-q","--",name],capture_output=True,timeout=10)
@@ -104,7 +104,7 @@ class DeliveryChecks(unittest.TestCase):
         shutil.copytree(runner.SKILL,target)
         manifest={"schema":1,"name":runner.SKILL.name,"source_git_baseline":"test-only","source_uncommitted":True,"files":skill_snapshot.inventory(target)}
         self.assertTrue(skill_snapshot.compare(target,manifest)["matches"])
-        path=target/"assets/design-record-template.md"
+        path=target/"templates/design-record-template.md"
         path.write_text(path.read_text(encoding="utf-8")+"\nlocal customization\n",encoding="utf-8")
         changed=path.read_bytes()
         with self.assertRaises(ValueError):skill_snapshot.compare(target,manifest)

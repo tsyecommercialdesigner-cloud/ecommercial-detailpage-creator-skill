@@ -73,3 +73,10 @@ uv run --frozen python scripts/archive_evidence.py --verify --output .eval-runs/
 归档须使用新路径，输入和输出均限制在 `.eval-runs/`，输出不能位于输入内部；排除 `.git`、`.venv` 和 `__pycache__`，拒绝链接资源，写后逐成员核对 SHA256／大小，并重读源清单确认没有并发写入。stdout 为一个 JSON，成功 0、失败 1、参数错误 2；归档工具本身**不删除源目录**，失败时保留源及已有已验证归档。调用者在已验证归档后，仅清理本次拥有且路径已核对的临时工作区；旧评测、用户环境和原图不清理。
 
 公共评测证据留在 `evals/`，完整原始轨迹仅作本地忽略 ZIP。需要重审原始轨迹时，先用归档清单核验摘要，在工作区独立临时目录恢复，再按实际恢复路径传给导出器；结束后清理本次恢复目录。CI 只上传 `.eval-runs/ci/` 的确定性日志，保留 7 天，不上传模型原始轨迹、原图、用户配置或凭据。
+
+
+## 2026-10-26 纯目录迁移
+
+v0.1.0 的 `evals/evidence.json`、基线和对比保持原样，不把旧资源轨迹改成新路径。`scripts/layout_migration.py` 以固定发行提交 `533262ff2955702e1a646ed9d0b9df58dcfd5f1f` 为来源，逐一核对所有评测输入；只允许 SKILL.md 的三个资源路径和 mock 工具说明中的对应示例路径替换，其余内容必须一致。CI checkout 取得完整历史以读取固定 Git 对象，不能用分支名冒充来源。
+
+新目录的 S01、B11、B12 各运行三次，原生模式、原量规及本地绘图替身；使用 `scripts/export_layout_evidence.py --run <本次 .eval-runs 批次> --discovery <本次 discovery.json> --tag layout` 审计后写入 `evals/layout-evidence.json`。该入口保留旧证据，仅导出新补测；旧 `audit_evidence.py --export` 不用于覆盖这个历史文件。默认证据门禁同时验证路径等价、不可变历史和独立新补测，拒绝把旧记录的 fingerprint 改贴为新版本；不是 CI 模型重放。

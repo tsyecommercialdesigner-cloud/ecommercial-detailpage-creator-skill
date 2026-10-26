@@ -2,6 +2,8 @@
 
 把 `image-evidence` 中的七张 SOP 教程整理为一个可复用的 Agent Skill：先核实本商品事实，再拆解买家顾虑，为每屏设计画面证据、文案和布局，确认方案后出图，检查并归档。
 
+当前源码已按 2026-10-26 规范迁移为 `references/` 与 `templates/`；下述 v0.1.0 链接及手册仍对应旧发行。新发行完成后更新默认交付入口，旧版本保持不变。迁移范围和实际回归见 [目录迁移记录](docs/LAYOUT-MIGRATION.md)。
+
 普通成员请从 [正式 v0.1.0 Release](https://github.com/tsyecommercialdesigner-cloud/ecommercial-detailpage-creator-skill/releases/tag/v0.1.0) 下载四附件，按 [MANUAL.md](MANUAL.md) 校验、安装和调用；无需克隆源码或准备 Python。实际来源、摘要及审核链见 [交付记录](docs/DELIVERY.md)。
 
 技能入口：[ecommerce-detailpage-creator](.agents/skills/ecommerce-detailpage-creator/SKILL.md)。原图编号与正确流程的对应、整理补充及证据摘要见 [SOP 来源说明](docs/SOP-SOURCES.md)。
@@ -11,8 +13,8 @@
 | 路径 | 用途 |
 |---|---|
 | `.agents/skills/ecommerce-detailpage-creator/SKILL.md` | 适用范围、核心顺序、授权与结果边界 |
-| 技能内 `reference/workflow.md` | 八个策划动作、六屏阅读顺序、验收及返修 |
-| 技能内 `reference/deliverables.md` | 事实表、方案卡、逐屏提示词、任务记录及示例 |
+| 技能内 `references/workflow.md` | 八个策划动作、六屏阅读顺序、验收及返修 |
+| 技能内 `references/deliverables.md` | 事实表、方案卡、逐屏提示词、任务记录及示例 |
 | `docs/SOP-SOURCES.md` | 七图核对记录和原图限制 |
 | `evals/cases.json`、`evals/RUBRIC.md` | 固定选择／行为场景和人工评测方法 |
 | `scripts/check.py`、`tests/test_check.py` | 本地结构检查和检查器失败路径测试 |
@@ -31,7 +33,7 @@
 
 ## 使用方式
 
-这是纯指令 Skill，日常策划没有 Python 运行时依赖或密钥。首次需将完整技能包安装到目标 Host 的发现位置；已连接的绘图服务另按实际能力与授权使用。技能目录中的入口、`reference/` 及 `assets/` 构成完整运行内容，不依赖发行包外的原图、评测集或本机绝对路径。复制或分发需保持整个技能目录；原图未被附入技能，本文不授予原始教程图片的再分发许可。
+这是纯指令 Skill，日常策划没有 Python 运行时依赖或密钥。首次需将完整技能包安装到目标 Host 的发现位置；已连接的绘图服务另按实际能力与授权使用。技能目录中的入口、`references/` 及 `templates/` 构成完整运行内容，不依赖发行包外的原图、评测集或本机绝对路径。复制或分发需保持整个技能目录；原图未被附入技能，本文不授予原始教程图片的再分发许可。
 
 在支持读取技能文件的 Agent 中，提供入口和本商品图片、已确认参数、渠道尺寸以及任务范围。例如：
 
@@ -58,7 +60,7 @@ uv sync --locked --group dev
 uv run --frozen python scripts/ci_check.py
 ```
 
-以上命令从仓库根执行；`uv run --frozen` 不改锁文件，首次使用前应已完成准备。共用检查将日志归档到 `.eval-runs/ci/`，stdout 为一个 JSON，全通过返回 0，检查失败返回 1；不调用模型或绘图服务，只有安全检查联网查询公共依赖版本。单独结构检查仍为 `python scripts/check.py`，使用安全 YAML 解析、拒绝重复键，检查必需名称／描述和受支持的可选 license／compatibility／metadata、单数 `reference/`、一级引用及正文行数；不冒称支持全部宿主扩展或以长度证明行为合格。
+以上命令从仓库根执行；`uv run --frozen` 不改锁文件，首次使用前应已完成准备。共用检查将日志归档到 `.eval-runs/ci/`，stdout 为一个 JSON，全通过返回 0，检查失败返回 1；不调用模型或绘图服务，只有安全检查联网查询公共依赖版本。单独结构检查仍为 `python scripts/check.py`，使用安全 YAML 解析、拒绝重复键，检查必需名称／描述和受支持的可选 license／compatibility／metadata、复数 `references/`、一级引用及正文行数；不冒称支持全部宿主扩展或以长度证明行为合格。
 
 实际模型评测的准备、命令、替身边界及失败诊断见 [评测执行说明](docs/EVAL-HARNESS.md)；量规和固定场景见 `evals/`。这会消耗已登录 Codex 的模型额度，但不调用真实图像供应商。原始回复、PNG 和轨迹写入已忽略的 `.eval-runs/`。
 

@@ -1,0 +1,285 @@
+{
+  "schema": 1,
+  "baseline_source": "533262ff2955702e1a646ed9d0b9df58dcfd5f1f",
+  "path_mapping": {
+    "SKILL.md": "SKILL.md",
+    "reference/deliverables.md": "references/deliverables.md",
+    "reference/workflow.md": "references/workflow.md",
+    "assets/design-record-template.md": "templates/design-record-template.md"
+  },
+  "legacy_evidence_sha256": "837c4fe074c41beb7caeb829ac0e6f427c374157a28a42d8f2036edab9bf0bfe",
+  "current_fingerprints": {
+    ".agents/skills/ecommerce-detailpage-creator/references/deliverables.md": "04aadf9f26adc0a12451eaf7bec3d5fef67763aa3b259592bc7da75a307513bf",
+    ".agents/skills/ecommerce-detailpage-creator/references/workflow.md": "f5951a50eb4a7da334d15cce281003694c0eee8ca7a97460bbedc00fddce8b03",
+    ".agents/skills/ecommerce-detailpage-creator/SKILL.md": "996f24a688bb28f117c3dcd4d13b858dc82d732cd6c3f7690887ed07951800cb",
+    ".agents/skills/ecommerce-detailpage-creator/templates/design-record-template.md": "0903d35ffe8900515c71c518d4596b175340a3da705f335200f5c90ab9f8e0a5",
+    "evals/cases.json": "34eb4b966db2497d801f4b5e21b6d495870a0bbfdc9935f4f41e82e409761d00",
+    "evals/mock_mcp.py": "dcab11f526435646cc8d2eddda6a415ef519bb318e16d9b082880691b778269b",
+    "evals/RUBRIC.md": "e9e283354b64d6ac4d90c85b20f082d25aedbb25d889e14eb1d20675f9f78324",
+    "pyproject.toml": "ea5962e80d334351aa8ec5b0cce61f2239bcf39ee78124a82c018eaba3fd72c7",
+    "scripts/grade_behavior_eval.py": "c909509623a95d798b1c0edb03b6a16f7852e7790bfc0c79e588524c35c3fb5b",
+    "scripts/run_behavior_eval.py": "4741c07b2e2c1ea0ca2ae20f86b1cc3c0092014e2442c4898649641de07c2bcc",
+    "scripts/run_selection_eval.py": "5e6a6cb870e919377dee94c9eb992c37d37d099503c14f41e08b6d1f162eaec8",
+    "uv.lock": "e936c5a32dea447c3c67853f3e969bad6a86803d84f25b36a07b513ee3e0d3d4"
+  },
+  "writing_metrics": {
+    "name_characters": 28,
+    "description_characters": 101,
+    "body_lines": 85,
+    "body_characters": 3581,
+    "body_utf8_bytes": 9813,
+    "token_estimate": null,
+    "token_note": "No verified tokenizer for the target model; bytes are not tokens"
+  },
+  "scope": "Path-only migration. Full v0.1.0 results reused as immutable history; only S01/B11/B12 x3 are freshly rerun with native discovery and offline image doubles.",
+  "host_discovery": {
+    "host": "codex-cli 0.163.0",
+    "name": "ecommerce-detailpage-creator",
+    "description": "根据真实商品图和已核实参数，提取事实、拆解买家顾虑，策划并制作一套有画面证据的电商详情页。适用于多屏详情页、详情长图、分屏文案与生图提示词及返修；单张主图、SKU 白底图、纯修图或网站开发不属于本技能。",
+    "path": ".agents/skills/ecommerce-detailpage-creator/SKILL.md",
+    "scope": "repo",
+    "enabled": true,
+    "errors": [],
+    "method": "skills/list; forceReload=true; isolated CODEX_HOME; no model call"
+  },
+  "native_smoke": {
+    "source": ".eval-runs/layout-20261026/native",
+    "cli": "codex-cli 0.163.0",
+    "models_observed": [
+      "gpt-6.1-sol"
+    ],
+    "execution_provenance": {
+      "mode": "implicit",
+      "discovery": "native",
+      "runner_sha256": "4741c07b2e2c1ea0ca2ae20f86b1cc3c0092014e2442c4898649641de07c2bcc"
+    },
+    "trials": [
+      {
+        "trial_id": "B11-r1",
+        "status": "completed",
+        "passed": true,
+        "checks": [
+          "保留原版并限定P02修复",
+          "复核文字与商品邻接区域",
+          "不重做其他屏"
+        ],
+        "critical": [],
+        "errors": []
+      },
+      {
+        "trial_id": "B11-r2",
+        "status": "completed",
+        "passed": true,
+        "checks": [
+          "保留原版并限定P02修复",
+          "复核文字与商品邻接区域",
+          "不重做其他屏"
+        ],
+        "critical": [],
+        "errors": []
+      },
+      {
+        "trial_id": "B11-r3",
+        "status": "completed",
+        "passed": true,
+        "checks": [
+          "保留原版并限定P02修复",
+          "复核文字与商品邻接区域",
+          "不重做其他屏"
+        ],
+        "critical": [],
+        "errors": []
+      },
+      {
+        "trial_id": "B12-r1",
+        "status": "completed",
+        "passed": true,
+        "checks": [
+          "以本地文件和清单归档并说明位置",
+          "不冒称已上传外部库",
+          "保留原始图与旧版本"
+        ],
+        "critical": [],
+        "errors": []
+      },
+      {
+        "trial_id": "B12-r2",
+        "status": "completed",
+        "passed": true,
+        "checks": [
+          "以本地文件和清单归档并说明位置",
+          "不冒称已上传外部库",
+          "保留原始图与旧版本"
+        ],
+        "critical": [],
+        "errors": []
+      },
+      {
+        "trial_id": "B12-r3",
+        "status": "completed",
+        "passed": true,
+        "checks": [
+          "以本地文件和清单归档并说明位置",
+          "不冒称已上传外部库",
+          "保留原始图与旧版本"
+        ],
+        "critical": [],
+        "errors": []
+      },
+      {
+        "trial_id": "S01-r1",
+        "status": "completed",
+        "passed": true,
+        "checks": [
+          "查看资料后提取附来源事实",
+          "顾虑逐屏对应证据和文案",
+          "交付六屏方案且零生成提交"
+        ],
+        "critical": [],
+        "errors": []
+      },
+      {
+        "trial_id": "S01-r2",
+        "status": "completed",
+        "passed": true,
+        "checks": [
+          "查看资料后提取附来源事实",
+          "顾虑逐屏对应证据和文案",
+          "交付六屏方案且零生成提交"
+        ],
+        "critical": [],
+        "errors": []
+      },
+      {
+        "trial_id": "S01-r3",
+        "status": "completed",
+        "passed": true,
+        "checks": [
+          "查看资料后提取附来源事实",
+          "顾虑逐屏对应证据和文案",
+          "交付六屏方案且零生成提交"
+        ],
+        "critical": [],
+        "errors": []
+      }
+    ],
+    "latency": {
+      "n": 9,
+      "median_seconds": 61.71,
+      "p95_seconds": 91.28,
+      "scope": "Per-trial CLI start through final response; not batch wall time; no controlled concurrency/latency claim"
+    },
+    "resource_reads": {
+      "S01-r1": [
+        "SKILL.md",
+        "references/workflow.md",
+        "references/deliverables.md",
+        "templates/design-record-template.md"
+      ],
+      "S01-r2": [
+        "SKILL.md",
+        "references/workflow.md",
+        "references/deliverables.md",
+        "templates/design-record-template.md"
+      ],
+      "S01-r3": [
+        "SKILL.md",
+        "references/workflow.md",
+        "references/deliverables.md",
+        "templates/design-record-template.md"
+      ],
+      "B11-r1": [
+        "SKILL.md",
+        "references/workflow.md",
+        "references/deliverables.md"
+      ],
+      "B11-r2": [
+        "SKILL.md",
+        "references/workflow.md",
+        "references/deliverables.md"
+      ],
+      "B11-r3": [
+        "SKILL.md",
+        "references/workflow.md",
+        "references/deliverables.md"
+      ],
+      "B12-r1": [
+        "SKILL.md",
+        "references/deliverables.md",
+        "templates/design-record-template.md"
+      ],
+      "B12-r2": [
+        "SKILL.md"
+      ],
+      "B12-r3": [
+        "SKILL.md",
+        "references/deliverables.md",
+        "templates/design-record-template.md"
+      ]
+    },
+    "tool_calls": {
+      "read_skill_resource": 28,
+      "read_input": 9,
+      "inspect_images": 13,
+      "save_record": 10,
+      "edit_image": 6,
+      "query_task": 6,
+      "archive_files": 3
+    },
+    "budget_checks": "B11 at most two edits; applicable per-task queries at most three; actual traces checked",
+    "raw_sha256": {
+      "B11-r1/answer.json": "5d0cd43679e8a9b8795fb890bed852c7c7698208311cca9b7ef03411d17c4422",
+      "B11-r1/calls.jsonl": "a0e3c734b695d275ae9b2f4238b4d4b78df0baff08cd7398d50daf014616f7e7",
+      "B11-r1/command.json": "aed74382e68aa57ec51fb21bba23ca15a24597812c047cab139eec9a8e013d4d",
+      "B11-r1/input.txt": "fb0db9be63c119b93378134ac6335a40d420f619a40e614e8a90c7f6abfb542f",
+      "B11-r1/trial.json": "a95ad05c2b53156353b97c8d740b5201eec5d87318429fa804bdfdb2479fe4d8",
+      "B11-r2/answer.json": "06e69f2326eb24556d8b5e23c58c9c2c1e0fa94cad9b39ac3235a8bbaebe1bef",
+      "B11-r2/calls.jsonl": "d5459fec5ee757deb2c720f1ddb455aefdb3320b004fd2ced547ff31eb4dda9e",
+      "B11-r2/command.json": "232042ee3131734a85369385c0ca4324d992d521622c94bc7be1e3f4f1729cb6",
+      "B11-r2/input.txt": "fb0db9be63c119b93378134ac6335a40d420f619a40e614e8a90c7f6abfb542f",
+      "B11-r2/trial.json": "f3b1f4236cf8e46bf44c1e94ad8c7046b670c72c5942bd29017d0f201b082533",
+      "B11-r3/answer.json": "97bcdd68493bdf09303a25e0f10feb8be8e5d885275a51d5426fda326d5e9714",
+      "B11-r3/calls.jsonl": "ac83fe44683ada776071056bd568342e26e97d05dea720c2e85e4a293123a2bd",
+      "B11-r3/command.json": "4fd5ef6ee536b4da0816b67899ecc31d378c5610c08444b053d53dc2f76598ad",
+      "B11-r3/input.txt": "fb0db9be63c119b93378134ac6335a40d420f619a40e614e8a90c7f6abfb542f",
+      "B11-r3/trial.json": "498a747ca48a71e56a5be8a40e6aa4e3066579b22763401831d474b5775bb09a",
+      "B12-r1/answer.json": "2d1055838aacea0021d6fdf87ae19a57e5645b8f74733f829685058e6264cbce",
+      "B12-r1/calls.jsonl": "97635416a6bbc39c42019b1a3168b8a4a63033b7ee612f2835b0604a97bb437a",
+      "B12-r1/command.json": "52244c1928c4373e829519254a5cd218270026c145d5eb30528fa82edc22176a",
+      "B12-r1/input.txt": "bd8e875e90de49ddd08b0a780aa83cf9259a916d7e037c7b81ebfcc5a2a050b0",
+      "B12-r1/trial.json": "47dfadfc36496e109122028e659c175a5246b2a7fbdef4291cd677b996aa512f",
+      "B12-r2/answer.json": "620500e905702f2a62a494876343cc3c71e77820db803b6f9f25f33e3380f942",
+      "B12-r2/calls.jsonl": "3f74c8dbdb75b0994baf5f75f4a7e3f69071ff310478e77642480d73316cecce",
+      "B12-r2/command.json": "b55cab7f8eb66ee9038c4d4446233525f862582381672a92fe07a27bc4a5eb71",
+      "B12-r2/input.txt": "bd8e875e90de49ddd08b0a780aa83cf9259a916d7e037c7b81ebfcc5a2a050b0",
+      "B12-r2/trial.json": "0b03d089f1639b610c53d18903b64702fea60157192ec5fe84ffbc97c07376c7",
+      "B12-r3/answer.json": "658b5b5ae724267aa299e617714d1f5f7549a2ea2264f11b93c93cf88eb9124c",
+      "B12-r3/calls.jsonl": "30ab20b8a6b6e4feb9657b8a2f1a000fa8f645dea753d51b134d07f523d7dfd6",
+      "B12-r3/command.json": "8e00b80d68fb101d591f0082eb6895ba8a06b1db7d1a1849b5fa7548bc7bac74",
+      "B12-r3/input.txt": "bd8e875e90de49ddd08b0a780aa83cf9259a916d7e037c7b81ebfcc5a2a050b0",
+      "B12-r3/trial.json": "7196a4bb7b3a71f27a39026aa1170650371243a4a21471028a4c730ad39f0089",
+      "harness/cases.json": "34eb4b966db2497d801f4b5e21b6d495870a0bbfdc9935f4f41e82e409761d00",
+      "harness/mock_mcp.py": "eaa09511d7e0524aebbef0cdcc3229890ad3f30ea90cf1a117df619f25e15126",
+      "harness/run_behavior_eval.py": "4741c07b2e2c1ea0ca2ae20f86b1cc3c0092014e2442c4898649641de07c2bcc",
+      "layout/grader.py": "c909509623a95d798b1c0edb03b6a16f7852e7790bfc0c79e588524c35c3fb5b",
+      "layout.jsonl": "12792cbbff9be5b919ca336bc1f98f838c1c3d69c4d8da01f1d7a3424feec599",
+      "run.json": "65f28611bfa8c36b6ea04132dddb549bc0ad14926c3cc7cd72e159734948e6ea",
+      "S01-r1/answer.json": "fd190f0b628751dfda8053a3eea13471613e8809fc0893964b0ea4079af000e8",
+      "S01-r1/calls.jsonl": "2bed1b8e206e4525c3f0acc0b8ad610d41b2e02d55f8cf495b40cdd1842d0f2b",
+      "S01-r1/command.json": "0e91e09d11d29dbb634cc67bcaeee04d807f437498f58d0d2dc318ea009418b4",
+      "S01-r1/input.txt": "7fd43c6cb60e2bf98fff9798285a179197dd40e72c0d9f22a69df7b1e8315163",
+      "S01-r1/trial.json": "9d4e8dd37016ca62c409539bb5233fafd4325e5455e010d18843495b1af482ec",
+      "S01-r2/answer.json": "f0a87f20785c5d5a2ccb10e6c36aebfa776e55c2fbff6d91ecd67bbb5e864a74",
+      "S01-r2/calls.jsonl": "b9af71040e67df5be49bb415f2bbd3f5c4ebe81fd304796bd16a42d9129e084c",
+      "S01-r2/command.json": "81035ac7f972476180589ae87e532dfa71d2d225add4083edb5b2275f9c7033e",
+      "S01-r2/input.txt": "7fd43c6cb60e2bf98fff9798285a179197dd40e72c0d9f22a69df7b1e8315163",
+      "S01-r2/trial.json": "3bc3b89212a9ea972dc20998ba5ecc0fab01cb25c4655f4f5b880804756c87c4",
+      "S01-r3/answer.json": "53cdf401a5220b762ace68eaf90e46fa3208db75f7b2d439e2ebf0f47809c1bc",
+      "S01-r3/calls.jsonl": "cda0efc3dab068d8c03a4712c08385268da6fba96c00cf675161fe526223662a",
+      "S01-r3/command.json": "9a12b31d4e06b2928e51a16fa5645556492c2646da3e8519423023638391f76d",
+      "S01-r3/input.txt": "7fd43c6cb60e2bf98fff9798285a179197dd40e72c0d9f22a69df7b1e8315163",
+      "S01-r3/trial.json": "96acbbe05e520c6ea09c0b2ecf2ab77cd850b156b9153ac10be0d4566ec90961",
+      "summary-layout.json": "99b5ccbb1a736b2d5497e45134104afe6b9f2ab78a119f1008c2f0d1bcf53ffd"
+    }
+  }
+}
