@@ -48,6 +48,15 @@ class HarnessTests(unittest.TestCase):
                           ("read_skill_resource",{"path":"../../../AGENTS.md"})]:
             with self.subTest(name=name): self.assertTrue(self.call(name,args)["isError"])
 
+    def test_renamed_resources_are_readable_through_mcp(self):
+        skill=REPO/".agents/skills/ecommerce-detailpage-creator"
+        for path in ["references/workflow.md","references/deliverables.md","templates/design-record-template.md"]:
+            response=self.call("read_skill_resource",{"path":path})
+            self.assertFalse(response["isError"])
+            self.assertEqual(json.loads(response["content"][0]["text"])["text"],(skill/path).read_text(encoding="utf-8"))
+        for path in ["reference/workflow.md","assets/design-record-template.md"]:
+            self.assertTrue(self.call("read_skill_resource",{"path":path})["isError"])
+
     def test_submit_query_save_and_inspect(self):
         submitted=self.server.call("submit_image",{"panel_id":"P01","prompt":"合成图","references":["input/product.png"],"version":"V2"})
         tid=submitted["task_id"]

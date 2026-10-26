@@ -27,7 +27,7 @@ class ReleaseTests(unittest.TestCase):
         git("add",".");git("-c","user.name=Synthetic test","-c","user.email=test@example.invalid","-c","commit.gpgsign=false","commit","-qm","fixture")
         self.sha=git("rev-parse","HEAD").decode().strip()
         self.out=self.repo/".eval-runs/release"
-        with patch.object(build_release,"REPO",self.repo):self.result=build_release.build(self.sha,"v0.1.0",self.out)
+        with patch.object(build_release,"REPO",self.repo):self.result=build_release.build(self.sha,"v0.1.1",self.out)
         self.parent=self.root/"成员 中文 space";self.parent.mkdir()
 
     def invoke(self,action,expected=0,**kwargs):
@@ -42,8 +42,8 @@ class ReleaseTests(unittest.TestCase):
         path=self.repo/build_release.PREFIX/"SKILL.md";path.write_text("unreviewed changed workspace",encoding="utf-8")
         second=self.repo/".eval-runs/second"
         with patch.object(build_release,"REPO",self.repo):
-            build_release.build(self.sha,"v0.1.0",second)
-            with self.assertRaises(FileExistsError):build_release.build(self.sha,"v0.1.0",second)
+            build_release.build(self.sha,"v0.1.1",second)
+            with self.assertRaises(FileExistsError):build_release.build(self.sha,"v0.1.1",second)
         self.assertEqual((self.out/"manifest.json").read_bytes(),(second/"manifest.json").read_bytes())
         self.assertEqual(next(self.out.glob("*.zip")).read_bytes(),next(second.glob("*.zip")).read_bytes())
         with zipfile.ZipFile(next(self.out.glob("*.zip"))) as z:self.assertEqual(len(z.namelist()),4)
@@ -73,7 +73,7 @@ class ReleaseTests(unittest.TestCase):
         wrapper=self.root/"concurrent-uninstall.ps1"
         wrapper.write_text('''param($Source,$BundleDir,$Digest,$SkillsDir)
 $global:Injected=$false
-$global:MemberFile=Join-Path $SkillsDir 'ecommerce-detailpage-creator/assets/member-concurrent.txt'
+$global:MemberFile=Join-Path $SkillsDir 'ecommerce-detailpage-creator/templates/member-concurrent.txt'
 function Remove-Item {
     param($LiteralPath,[switch]$Force,[switch]$Recurse)
     if (!$global:Injected) {
@@ -88,7 +88,7 @@ exit $LASTEXITCODE
         proc=subprocess.run([shutil.which("pwsh"),"-NoProfile","-File",str(wrapper),"-Source",str(self.out/"Manage-Skill.ps1"),"-BundleDir",str(self.out),"-Digest",self.result["manifest_sha256"],"-SkillsDir",str(self.parent)],capture_output=True,text=True,encoding="utf-8",timeout=20)
         self.assertEqual(proc.returncode,1,proc.stdout+proc.stderr)
         self.assertEqual(proc.stdout.strip(),"")
-        self.assertEqual((self.parent/build_release.NAME/"assets/member-concurrent.txt").read_text(),"preserve concurrent user content")
+        self.assertEqual((self.parent/build_release.NAME/"templates/member-concurrent.txt").read_text(),"preserve concurrent user content")
 
     def test_duplicate_and_traversal_zip_entries_rejected_even_with_recomputed_hashes(self):
         bundle=next(self.out.glob("*.zip"));manifest_path=self.out/"manifest.json"

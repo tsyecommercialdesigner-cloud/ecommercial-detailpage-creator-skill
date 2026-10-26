@@ -88,9 +88,9 @@ def check_layout(root):
             continue
         if len(relative.parts)>2:
             errors.append(f"{relative}: nested skill resource")
-        if relative.parts[0] not in {"reference","scripts","assets","agents","SKILL.md","LICENSE","NOTICE"}:
+        if relative.parts[0] not in {"references","scripts","templates","assets","agents","SKILL.md","LICENSE","NOTICE"}:
             errors.append(f"{relative}: unsupported skill package location")
-        if path.is_file() and relative.parts[0] in {"reference","scripts","assets"}:
+        if path.is_file() and relative.parts[0] in {"references","scripts","templates","assets"}:
             required.add(relative.as_posix())
             if not re.fullmatch(r"[a-z0-9][a-z0-9._-]*",path.name):
                 errors.append(f"{relative}: resource filename must be lowercase and meaningful")

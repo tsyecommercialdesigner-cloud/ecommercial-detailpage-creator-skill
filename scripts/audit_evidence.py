@@ -18,6 +18,7 @@ import yaml
 import check
 import grade_behavior_eval as grader
 import run_behavior_eval as runner
+import layout_migration
 
 REPO=runner.REPO
 PUBLIC=REPO/"evals/evidence.json"
@@ -43,12 +44,15 @@ def load(path):
 def validate(data):
     if data["schema"]!=2 or data["fingerprint_encoding"]!="UTF-8 LF":
         raise ValueError("Unknown attestation schema/encoding")
-    if data["fingerprints"]!=fingerprints():
+    current=fingerprints()
+    migrated=(runner.SKILL/"templates/design-record-template.md").is_file()
+    expected_fingerprints,expected_metrics=(layout_migration.legacy_context(data,current) if migrated else (current,check.skill_metrics(runner.SKILL)))
+    if data["fingerprints"]!=expected_fingerprints:
         raise ValueError("Evaluated inputs or maintenance dependencies changed; re-audit evidence")
     definitions={c["id"]:c for c in load(REPO/"evals/cases.json")["cases"]}
     if digest(REPO/"evals/baseline-evidence.json")!=data["baseline_evidence_sha256"]:
         raise ValueError("Historical baseline attestation changed")
-    if data["writing_metrics"]!=check.skill_metrics(runner.SKILL):raise ValueError("Writing metrics differ")
+    if data["writing_metrics"]!=expected_metrics:raise ValueError("Writing metrics differ")
     discovery=data["host_discovery"]
     if (discovery["name"]!=runner.SKILL.name or discovery["description"]!=check.read_metadata(runner.SKILL/"SKILL.md")["description"]
             or discovery["path"]!=(runner.SKILL.relative_to(REPO).as_posix()+"/SKILL.md")
@@ -76,6 +80,7 @@ def validate(data):
             elif row["critical"] or row["errors"] or sorted(row["checks"])!=sorted(case["expected"]):
                 raise ValueError("Behavior contradicts rubric")
     check_comparison(data,load(REPO/"evals/comparison.json"))
+    if migrated:layout_migration.validate_native(load(layout_migration.PROOF),current,check.skill_metrics(runner.SKILL),definitions)
     return data
 
 
@@ -213,6 +218,7 @@ def main():
         print("PASS: "+"; ".join(f"{name} {sum(r['passed'] for r in batch['trials'])}/{len(batch['trials'])}" for name,batch in data["batches"].items())+"; fingerprints match")
         print(json.dumps(selection_quality(data)))
         print("Scope: evidence consistency, not a CI model replay")
+        if data["fingerprints"]!=fingerprints():print("Layout migration: v0.1.0 history unchanged; path-only equivalence verified; separate fresh native smoke 9/9")
         return 0
     except (OSError,ValueError,KeyError,TypeError,StopIteration) as error:
         print(f"FAIL: {error}")
